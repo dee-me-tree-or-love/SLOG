@@ -3,6 +3,7 @@ package dmitriiorlov.com.slog.domains.documents.browse;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -24,12 +25,14 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import dmitriiorlov.com.slog.R;
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
 import dmitriiorlov.com.slog.data.models.Document;
 import dmitriiorlov.com.slog.domains.auth.LoginActivity;
 import dmitriiorlov.com.slog.domains.documents.DocumentStore;
 import dmitriiorlov.com.slog.domains.documents.browse.viewholders.BrowseDocumentViewHolder;
+import dmitriiorlov.com.slog.domains.documents.edit.EditActivity;
 import dmitriiorlov.com.slog.domains.global.ConnectivityStore;
 import dmitriiorlov.com.slog.domains.global.ProfileStore;
 import dmitriiorlov.com.slog.flux.GlobalDispatcher;
@@ -43,6 +46,8 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     Toolbar mToolbar;
     @BindView(R.id.browse_recycler_view)
     RecyclerView mRecyclerView;
+    @BindView(R.id.browse_fab_new_note)
+    FloatingActionButton mNewNoteFab;
 
     private boolean mRecyclerViewIsSetUp = false;
     private FirebaseRecyclerAdapter mDocumentBrowseAdapter;
@@ -76,6 +81,9 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
         // set the app bar
         setSupportActionBar(mToolbar);
+        // TODO: good try, maybe switch to having the connectivity thing on the left, but it is not the major concern
+        // for adding stuff you should still use a FAB
+//        mToolbar.setNavigationIcon(R.drawable.ic_cloud_done_black_24dp);
         // setup the recycler view with notes
 
         // check if the user is actually retrieved
@@ -86,6 +94,13 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         }
     }
 
+
+    // opening the edit activity with the blank key --> the new note is being created
+    @OnClick(R.id.browse_fab_new_note)
+    public void createNewNote(View view) {
+        Toast.makeText(this, "Creating a new note", Toast.LENGTH_SHORT).show();
+        GlobalDispatcher.getInstance().requestDocumentByKey(this, "");
+    }
 
     private void setupRecyclerView() {
         Query query = FireBaseUtil.getInstance()
@@ -258,6 +273,56 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         // deprecated
     }
 
+
+    // [ STORE STATE OBSERVATION HANDLERS ]
+
+    private void handleDocumentStoreNotification() {
+        if (!this.mRecyclerViewIsSetUp) {
+            this.setupRecyclerView();
+        }
+
+        // check if needs redirecting to the edit activity:
+        if(DocumentStore.getInstance().getIsInEditMode()){
+
+            // do the switch of the activities
+            // no finish in this case, as we do not need to loose the state
+            startActivity(new Intent(this, EditActivity.class));
+        }
+//        mDocumentBrowseAdapter.notifyDataSetChanged();
+    }
+
+    private void handleConnectivityStoreNotification() {
+        if (ConnectivityStore.getInstance().getIsNetworkConnected()) {
+
+            Menu menu = this.mToolbar.getMenu();
+            MenuItem mi = menu.findItem(R.id.miBrowseCloud);
+            mi.setIcon(R.drawable.ic_cloud_done_black_24dp);
+        } else {
+
+            Menu menu = this.mToolbar.getMenu();
+            MenuItem mi = menu.findItem(R.id.miBrowseCloud);
+            mi.setIcon(R.drawable.ic_cloud_off_black_24dp);
+        }
+
+    }
+
+    private void handleProfileStoreNotification() {
+        try {
+
+            boolean signedIn = (ProfileStore.getInstance().getIsSignedIn());
+            this.setLogoutButtonEnabled(signedIn);
+            // Basically now switched to local mode??
+            // The funny thing that is the user now can not read any of the documents anymore...
+            // or maybe better to take the user to the login screen?
+
+
+        } catch (Exception e) {
+            Log.e("Logout view prblm", e.getMessage());
+        }
+        // set Title
+        this.mToolbar.setTitle("SLOG of " + ProfileStore.getInstance().getProfileName());
+    }
+
     @Override
     public void updateStoreState(Store store) {
         // TODO: split those into smaller single methods
@@ -268,49 +333,20 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
             case DOCUMENT_STORE:
 
                 // do the related document display adjustments
-//                Toast.makeText(this, "Document Store notification: " + DocumentStore.getInstance().getDocumentList().size(), Toast.LENGTH_SHORT).show();
-                if (!this.mRecyclerViewIsSetUp) {
-                    this.setupRecyclerView();
-                }
-                mDocumentBrowseAdapter.notifyDataSetChanged();
+                this.handleDocumentStoreNotification();
                 break;
 
 //            //!!!!!!!! case CONNECTIVITY_STORE:
             case CONNECTIVITY_STORE:
 
                 // do the connectivity related display adjustments
-                if (ConnectivityStore.getInstance().getIsNetworkConnected()) {
-
-                    Menu menu = this.mToolbar.getMenu();
-                    MenuItem mi = menu.findItem(R.id.miBrowseCloud);
-                    mi.setIcon(R.drawable.ic_cloud_done_black_24dp);
-                } else {
-
-                    Menu menu = this.mToolbar.getMenu();
-                    MenuItem mi = menu.findItem(R.id.miBrowseCloud);
-                    mi.setIcon(R.drawable.ic_cloud_off_black_24dp);
-                }
-
-//                Toast.makeText(this,"Connectivity Store notifiacation", Toast.LENGTH_SHORT).show();
+                this.handleConnectivityStoreNotification();
                 break;
 
 //            //!!!!!!!! case PROFILE_STORE:
             case PROFILE_STORE:
-
-                try {
-
-                    boolean signedIn = (ProfileStore.getInstance().getIsSignedIn());
-                    this.setLogoutButtonEnabled(signedIn);
-                    // Basically now switched to local mode??
-                    // The funny thing that is the user now can not read any of the documents anymore...
-                    // or maybe better to take the user to the login screen?
-
-
-                } catch (Exception e) {
-                    Log.e("Logout view prblm", e.getMessage());
-                }
-                // set Title
-                this.mToolbar.setTitle("SLOG of " + ProfileStore.getInstance().getProfileName());
+                this.handleProfileStoreNotification();
+                break;
         }
     }
 

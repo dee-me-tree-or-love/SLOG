@@ -157,6 +157,11 @@ public class ProfileStore implements StoreCallback, Store {
 
     }
 
+    @Override
+    public void onDocumentDataRetrieved(Document document, String key) {
+
+    }
+
     private void unsetProfileName(){
         this.mProfileName = "the ?";
     }

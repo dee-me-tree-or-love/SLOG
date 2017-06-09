@@ -59,4 +59,6 @@ public interface StoreCallback {
     boolean signOut(Context context);
 
     void queryDocumentByKey(Context context, String key);
+
+    void onDocumentDataRetrieved(Document document, String key);
 }

@@ -31,15 +31,15 @@ public class FireBaseUtil {
     private DatabaseReference mDatabaseReference;
 
     private FireBaseUtil() {
-        try{
+        try {
 
             this.mFirebaseAuth = FirebaseAuth.getInstance();
             mDatabase = FirebaseDatabase.getInstance();
             mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
-            Log.e("Reference setup",e.getMessage());
+            Log.e("Reference setup", e.getMessage());
         }
     }
 
@@ -52,26 +52,26 @@ public class FireBaseUtil {
     }
 
     // is used to get the instances
-    public FirebaseAuth getFirebaseAuth(){
+    public FirebaseAuth getFirebaseAuth() {
         return this.mFirebaseAuth;
     }
 
-    public FirebaseDatabase getFirebaseDatabase(){
+    public FirebaseDatabase getFirebaseDatabase() {
         return this.mDatabase;
     }
 
-    public DatabaseReference getDatabaseReference(){
+    public DatabaseReference getDatabaseReference() {
         return this.mDatabaseReference;
     }
 
-    public DatabaseReference getUserDocumentsDatabaseReference(){
+    public DatabaseReference getUserDocumentsDatabaseReference() {
         FirebaseUser currentUser = FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser();
         DatabaseReference ref = FireBaseUtil.getInstance().getDatabaseReference()
                 .child("users").child(currentUser.getUid()).child("documents");
         return ref;
     }
 
-    public void requestCurrentUserData(){
+    public void requestCurrentUserData() {
 
         FirebaseUser currentUser = FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser();
         DatabaseReference ref = FireBaseUtil.getInstance().getDatabaseReference().child("users").child(currentUser.getUid());
@@ -91,7 +91,7 @@ public class FireBaseUtil {
         });
     }
 
-    public void requestCurrentUserDocuments(){
+    public void requestCurrentUserDocuments() {
         DatabaseReference ref = this.getUserDocumentsDatabaseReference();
         // getting the data once from the firebase
         ref.addValueEventListener(new ValueEventListener() {
@@ -100,7 +100,7 @@ public class FireBaseUtil {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Document> documentList = new ArrayList<Document>();
 //                List<String> keys = new ArrayList<String>();
-                for(DataSnapshot docSnapshot: dataSnapshot.getChildren()){
+                for (DataSnapshot docSnapshot : dataSnapshot.getChildren()) {
                     Document doc = docSnapshot.getValue(Document.class);
                     documentList.add(doc);
 //                    keys.add(docSnapshot.getKey());
@@ -111,7 +111,7 @@ public class FireBaseUtil {
                 Collections.sort(documentList, new Comparator<Document>() {
                     @Override
                     public int compare(Document o1, Document o2) {
-                        return (int)(o1.getDate() - o2.getDate());
+                        return (int) (o1.getDate() - o2.getDate());
                     }
                 });
 
@@ -125,7 +125,39 @@ public class FireBaseUtil {
         });
     }
 
-    public boolean checkWhetherIsLoggedIn(Context context){
+    /**
+     * Requests the data about 1 particular document entry or prepares to create a new one, if the key is unset
+     *
+     * @param key
+     * @return result of looking up the data in the Firebase
+     */
+    public boolean getCurrentUserDocumentByKey(String key) {
+        //TODO: implement
+        if (key == "") {
+            return false;
+            // meaning, we are not even going to look for such key, handle it yourself
+        }
+
+        // reference to the child of the user's documents => the only one with the specified ID.
+        DatabaseReference ref = FireBaseUtil.getInstance()
+                .getUserDocumentsDatabaseReference().child(key);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // if the datasnapshot was retrieved succesfully
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("DocumentByKeyFail", "Failed to retrieve the document data by key");
+            }
+        });
+
+        return true;
+    }
+
+    public boolean checkWhetherIsLoggedIn(Context context) {
         return (FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser() != null);
     }
 
@@ -139,7 +171,6 @@ public class FireBaseUtil {
 //            return false;
 //        }
 //    }
-
 
 
 //    synchronized

@@ -4,19 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".domains.documents.browse.BrowseActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".domains.documents.browse.BrowseActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/browse_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:layout_collapseMode="pin"
+        android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/AppTheme"
-        app:popupTheme="@style/AppTheme"
-        android:background="?attr/colorPrimary"
-        />
+        app:layout_collapseMode="pin"
+        app:popupTheme="@style/AppTheme" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/browse_recycler_view"
@@ -25,4 +24,17 @@
         android:paddingTop="?attr/actionBarSize"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/browse_fab_new_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_mode_edit_black_24dp"
+        android:tint="@color/white"
+        app:fabSize="normal"
+        app:rippleColor="@color/colorAccent" />
 </RelativeLayout>

@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
+import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
 import dmitriiorlov.com.slog.data.models.Document;
 import dmitriiorlov.com.slog.data.models.User;
 import dmitriiorlov.com.slog.domains.global.ProfileStore;
@@ -41,8 +42,12 @@ public class DocumentStore implements Store, StoreCallback {
     @Deprecated
     private List<String> mDocumentKeys;
 
+    //    private String mSelectedDocumentKey;
+    private Document mDocumentInEditMode;
+    private boolean mIsInEditMode;
+    // to be requested from the edit document view, since this determines push or update method on the firebase instance
+    private boolean mIsNewDocument;
     private String mSelectedDocumentKey;
-
 
     // list of the ControllerViews Observing the store
     private List<ControllerView> mControllerViews;
@@ -54,6 +59,25 @@ public class DocumentStore implements Store, StoreCallback {
         this.mDocumentKeys = new ArrayList<>();
         this.mDocumentList = new ArrayList<>();
         this.mSelectedDocumentKey = "";
+        this.mDocumentInEditMode = null;
+        this.mIsInEditMode = false;
+        mIsNewDocument = false;
+    }
+
+    public String getSelectedDocumentKey() {
+        return this.mSelectedDocumentKey;
+    }
+
+    public boolean getIsNewDocument(){
+        return this.mIsNewDocument;
+    }
+
+    public boolean getIsInEditMode() {
+        return this.mIsInEditMode;
+    }
+
+    public Document getDocumentInEditMode() {
+        return this.mDocumentInEditMode;
     }
 
     public List<Document> getDocumentList() {
@@ -124,7 +148,29 @@ public class DocumentStore implements Store, StoreCallback {
 
     @Override
     public void queryDocumentByKey(Context context, String key) {
+        // request the resource once from the firebase with a given key
+        boolean queryResult = FireBaseUtil.getInstance().getCurrentUserDocumentByKey(key);
+        // didn't retrieve anything --> need to create a new document
+        if(!queryResult){
+            this.mIsInEditMode = true;
+            this.mDocumentInEditMode = new Document();
+            this.mIsNewDocument = true;
+            this.mSelectedDocumentKey = "";
+            notifyStateChange();
+        }
+        // if the query has resulted in true, we can assume that from
+        // now the firebase will notify as soon as it gets the correct info...
+        // if everything goes well, the method onDocumentDataRetrieved will be called
+    }
 
+    @Override
+    public void onDocumentDataRetrieved(Document document, String key) {
+        this.mDocumentInEditMode = document;
+        this.mIsInEditMode = true;
+        // since we have successfully retrieved the document
+        this.mIsNewDocument = false;
+        this.mSelectedDocumentKey = key;
+        notifyStateChange();
     }
 
     // TODO: think whether you can move it to an abstract class... cause it is fucking annoying to retype...

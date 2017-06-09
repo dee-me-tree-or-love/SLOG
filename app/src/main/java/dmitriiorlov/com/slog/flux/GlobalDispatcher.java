@@ -145,4 +145,16 @@ public class GlobalDispatcher implements Dispatcher {
             Log.e("Signing out problem", e.getMessage());
         }
     }
+
+    public void retrievedSingleDocument(Document document, String key){
+        try {
+
+            for (StoreCallback sc : this.mStoreCallbacks) {
+                sc.onDocumentDataRetrieved(document, key);
+            }
+        } catch (Exception e) {
+
+            Log.e("Signing out problem", e.getMessage());
+        }
+    }
 }

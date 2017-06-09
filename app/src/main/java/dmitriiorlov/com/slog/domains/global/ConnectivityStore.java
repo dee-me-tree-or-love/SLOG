@@ -134,4 +134,9 @@ public class ConnectivityStore implements StoreCallback, Store {
 
     }
 
+    @Override
+    public void onDocumentDataRetrieved(Document document, String key) {
+
+    }
+
 }

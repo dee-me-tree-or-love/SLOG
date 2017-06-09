@@ -325,7 +325,12 @@ public class AuthStore implements Store, StoreCallback {
 
     @Override
     public void queryDocumentByKey(Context context, String key) {
+        // ignored
+    }
 
+    @Override
+    public void onDocumentDataRetrieved(Document document, String key) {
+        // ignored
     }
 
 
