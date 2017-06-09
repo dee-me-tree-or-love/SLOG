@@ -148,7 +148,7 @@ public class AuthStore implements Store, StoreCallback {
      */
     public boolean isFirebaseLoggedIn(Context context) {
         //if getCurrentUser does not returns null => already logged in
-        return (FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser() != null);
+        return FireBaseUtil.getInstance().checkWhetherIsLoggedIn(context);
     }
 
     @Override
@@ -168,7 +168,6 @@ public class AuthStore implements Store, StoreCallback {
         this.mInstance = null;
     }
 
-    // TODO: implement the shit
     @Override
     synchronized
     public boolean signIn(Context context, final String email, String password) {
@@ -308,7 +307,19 @@ public class AuthStore implements Store, StoreCallback {
 
     @Override
     public void onProfileDocumentsChanged(List<Document> documentList) {
+        // ignoring
+    }
 
+    @Override
+    public boolean signOut(Context context) {
+        // TODO: think whether this handling is good enough
+        AuthStore.getInstance().mIsLoggingIn = false;
+        AuthStore.getInstance().mSignInIsSuccessful = false;
+        AuthStore.getInstance().mSignInError = "";
+        AuthStore.getInstance().mInputEmail = "";
+        AuthStore.getInstance().mInputName = "";
+        // should we notify?
+        return false;
     }
 
 

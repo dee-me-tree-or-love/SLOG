@@ -47,4 +47,6 @@ public interface StoreCallback {
     // void currentUserDataChanged(Context context);
 
     void onProfileDocumentsChanged(List<Document> documentList);
+
+    boolean signOut(Context context);
 }

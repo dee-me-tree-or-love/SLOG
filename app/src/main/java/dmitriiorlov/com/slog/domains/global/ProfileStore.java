@@ -1,6 +1,7 @@
 package dmitriiorlov.com.slog.domains.global;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.android.gms.common.data.FreezableUtils;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,6 +47,7 @@ public class ProfileStore implements StoreCallback, Store {
 
     private String mProfileName;
     private String mProfileEmail;
+    private boolean mSignedIn;
 
     // list of the ControllerViews Observing the store
     private List<ControllerView> mControllerViews;
@@ -54,14 +56,21 @@ public class ProfileStore implements StoreCallback, Store {
         this.mControllerViews = new ArrayList<>();
         this.registerToDispatcher();
 
-        this.mProfileName = "";
+        this.mProfileName = "the ?";
         this.mProfileEmail = "";
+        // not sure about this one
+        this.mSignedIn = false;
     }
 
     // just a way to solve it for now, later use countdown latch for this purpose!
     public void queryTheUserProfile(){
+        this.mSignedIn = true;
         FireBaseUtil.getInstance().requestCurrentUserData();
         FireBaseUtil.getInstance().requestCurrentUserDocuments();
+    }
+
+    public  boolean getIsSignedIn(){
+        return this.mSignedIn;
     }
 
     public String getProfileName(){
@@ -91,7 +100,8 @@ public class ProfileStore implements StoreCallback, Store {
     @Override
     public boolean signIn(Context context, String email, String password) {
         this.mProfileEmail = email;
-        // name should be retrieved
+        this.mSignedIn = true;
+        // name should be retrieved via the query function from the AuthStore to avoid conflicts
         return false;
     }
 
@@ -99,6 +109,7 @@ public class ProfileStore implements StoreCallback, Store {
     public boolean signUp(Context context, String name, String email, String password) {
         // we can assume that this is allowed and will be working safely, but we need to be careful
         this.mProfileName = name;
+        this.mSignedIn = true;
         this.mProfileEmail = name;
         notifyStateChange();
         return false;
@@ -121,6 +132,28 @@ public class ProfileStore implements StoreCallback, Store {
         // ignoring...
     }
 
+    @Override
+    public boolean signOut(Context context) {
+        // TODO: handle the sign out request
+        boolean isLoggedIn = FireBaseUtil.getInstance().checkWhetherIsLoggedIn(context);
+        if(isLoggedIn){
+
+            FireBaseUtil.getInstance().getFirebaseAuth().signOut();
+            this.mSignedIn = false;
+            this.unsetProfileName();
+            this.mProfileEmail = "";
+        }else{
+
+            Log.e("LOGOUT PROBLEM","User appears not to be loggged in!");
+        }
+
+        notifyStateChange();
+        return isLoggedIn;
+    }
+
+    private void unsetProfileName(){
+        this.mProfileName = "the ?";
+    }
 
     @Override
     public void subscribeControllerView(ControllerView cv) {

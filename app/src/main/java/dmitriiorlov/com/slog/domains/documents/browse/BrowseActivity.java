@@ -1,5 +1,8 @@
 package dmitriiorlov.com.slog.domains.documents.browse;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -15,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dmitriiorlov.com.slog.R;
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
+import dmitriiorlov.com.slog.domains.auth.LoginActivity;
 import dmitriiorlov.com.slog.domains.documents.DocumentStore;
 import dmitriiorlov.com.slog.domains.global.ConnectivityStore;
 import dmitriiorlov.com.slog.domains.global.ProfileStore;
@@ -39,6 +43,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     // responsible for the profile data
     private ProfileStore mProfileStore;
 
+    private PopupMenu mCloudPopupMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +63,6 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         mProfileStore.subscribeControllerView(this);
 
         // set the app bar
-        //TODO: change the title to the user's name
-//        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
 
         // check if the user is actually retrieved
@@ -100,10 +103,71 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         return false;
     }
 
+    /**
+     * Used to setup the popum menu and its option handlers
+     *
+     * @param v
+     */
+    private void preparePopupMenu(View v) {
+        mCloudPopupMenu = new PopupMenu(this, v);
+        final Context context = this;
+        mCloudPopupMenu.getMenuInflater().inflate(R.menu.menu_browse_popup, mCloudPopupMenu.getMenu());
+        // registering actions:
+        mCloudPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                switch (itemId) {
+                    case R.id.browse_popup_connection_logout:
+
+                        // do the logout stuff
+                        GlobalDispatcher.getInstance().performSignOut(context);
+                        break;
+
+                    case R.id.browse_popup_connection_authorize:
+
+                        // switch it to the login page
+                        // after a delay?
+                        // I HAVE NO CLUE HOW, BUT IT WORKED!
+//                        final Handler handler = new Handler();
+//                        Log.i("DelayedTask", "posting now");
+//                        handler.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                //Do something after 100ms
+//                                Log.i("DelayedTask", "executing");
+                        Log.i("Switch activity", "executing");
+                        try {
+
+                            finish();
+                            unsubscribeFromAll();
+                            startActivity(new Intent(context, LoginActivity.class));
+
+                        } catch (Exception e) {
+
+                            Log.e("DelayedTask EXC", e.getMessage());
+                        }
+//                            }
+//                        }, 100);
+
+                        // The line below DOES WORK, while the above shit does not!
+//                        Toast.makeText(context, "WHHHHHHHAAAT? : " + item.getItemId(), Toast.LENGTH_SHORT).show();
+                        break;
+
+                    default:
+                        Toast.makeText(context, "You Clicked : " + item.getItemId() + "\nAnd there's nothing you can do about it", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
     private void showMenuPopup(View v) {
-        PopupMenu popupMenu = new PopupMenu(this, v);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_browse_popup, popupMenu.getMenu());
-        popupMenu.show();
+        if (mCloudPopupMenu == null) {
+            this.preparePopupMenu(v);
+        }
+        mCloudPopupMenu.show();
     }
 
     @Override
@@ -117,27 +181,75 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         switch (st) {
             case DOCUMENT_STORE:
                 // do the related document display adjustments
-                Toast.makeText(this,"Document Store notification: " + DocumentStore.getInstance().getDocumentList().size(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Document Store notification: " + DocumentStore.getInstance().getDocumentList().size(), Toast.LENGTH_SHORT).show();
                 break;
             case CONNECTIVITY_STORE:
 
                 // do the connectivity related display adjustments
-                if(ConnectivityStore.getInstance().getIsNetworkConnected()){
+                if (ConnectivityStore.getInstance().getIsNetworkConnected()) {
                     Menu menu = this.mToolbar.getMenu();
                     MenuItem mi = menu.findItem(R.id.miBrowseCloud);
                     mi.setIcon(R.drawable.ic_cloud_done_black_24dp);
-                }else{
+                } else {
 
                     Menu menu = this.mToolbar.getMenu();
                     MenuItem mi = menu.findItem(R.id.miBrowseCloud);
-                    mi.setIcon(R.drawable.ic_cloud_off_black_24dp);}
+                    mi.setIcon(R.drawable.ic_cloud_off_black_24dp);
+                }
 
 //                Toast.makeText(this,"Connectivity Store notifiacation", Toast.LENGTH_SHORT).show();
                 break;
             case PROFILE_STORE:
 
+                try {
+
+                    boolean signedIn = (ProfileStore.getInstance().getIsSignedIn());
+                    this.setLogoutButtonEnabled(signedIn);
+                    // Basically now switched to local mode??
+                    // The funny thing that is the user now can not read any of the documents anymore...
+                    // or maybe better to take the user to the login screen?
+
+
+                } catch (Exception e) {
+                    Log.e("Logout view prblm", e.getMessage());
+                }
                 // set Title
                 this.mToolbar.setTitle("SLOG of " + ProfileStore.getInstance().getProfileName());
+        }
+    }
+
+    /**
+     * Renders the popup menu according to the application state
+     *
+     * @param enabled
+     */
+    private void setLogoutButtonEnabled(boolean enabled) {
+        try {
+            try {
+
+                if (enabled) {
+                    this.mToolbar.getMenu()
+                            .findItem(R.id.miBrowseCloud)
+                            .setIcon(R.drawable.ic_cloud_done_black_24dp);
+                } else {
+                    this.mToolbar.getMenu()
+                            .findItem(R.id.miBrowseCloud)
+                            .setIcon(R.drawable.ic_cloud_queue_black_24dp);
+                }
+            } catch (Exception e) {
+                // nothing to do about it...
+            }
+
+            if (mCloudPopupMenu == null) {
+                this.preparePopupMenu(findViewById(R.id.miBrowseCloud));
+            }
+            MenuItem miOut = mCloudPopupMenu.getMenu().findItem(R.id.browse_popup_connection_logout);
+            miOut.setEnabled(enabled);
+            MenuItem miIn = mCloudPopupMenu.getMenu().findItem(R.id.browse_popup_connection_authorize);
+            miIn.setEnabled(!enabled);
+
+        } catch (Exception e) {
+            Log.e("RENDER BROWSE ERROR", e.getMessage());
         }
     }
 

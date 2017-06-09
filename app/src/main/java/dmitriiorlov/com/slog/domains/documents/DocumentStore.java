@@ -96,6 +96,12 @@ public class DocumentStore implements Store, StoreCallback {
         notifyStateChange();
     }
 
+    @Override
+    public boolean signOut(Context context) {
+        this.destroySelf();
+        return false;
+    }
+
     // TODO: think whether you can move it to an abstract class... cause it is fucking annoying to retype...
     @Override
     public void subscribeControllerView(ControllerView cv) {

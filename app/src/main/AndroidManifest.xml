@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <!-- Needed to check when the network connection changes -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,5 +29,15 @@
         </activity>
         <activity android:name=".domains.documents.browse.BrowseActivity"></activity>
     </application>
+
+    <!-- This whole stuff is deprecated... -->
+    <!--<receiver-->
+        <!--android:name=".utils.connectivity.ConnectionChangeReceiver"-->
+        <!--android:label="NetworkConnection">-->
+        <!--<intent-filter>-->
+            <!--<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />-->
+            <!--<action android:name="android.net.wifi.WIFI_STATE_CHANGED" />-->
+        <!--</intent-filter>-->
+    <!--</receiver>-->
 
 </manifest>

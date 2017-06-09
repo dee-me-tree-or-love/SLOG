@@ -111,6 +111,14 @@ public class GlobalDispatcher implements Dispatcher {
     }
 
     public void performSignOut(Context context) {
+        try {
 
+            for (StoreCallback sc : this.mStoreCallbacks) {
+                sc.signOut(context);
+            }
+        } catch (Exception e) {
+
+            Log.e("Signing out problem", e.getMessage());
+        }
     }
 }

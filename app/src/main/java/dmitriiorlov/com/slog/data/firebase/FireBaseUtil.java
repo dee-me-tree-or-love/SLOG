@@ -1,5 +1,6 @@
 package dmitriiorlov.com.slog.data.firebase;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -103,6 +104,10 @@ public class FireBaseUtil {
                 Log.e("Doc data request", "Failed to retrieve the documents");
             }
         });
+    }
+
+    public boolean checkWhetherIsLoggedIn(Context context){
+        return (FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser() != null);
     }
 
 //    public static boolean loginWithEmailAndPassword(String email, String password){

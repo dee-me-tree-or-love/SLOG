@@ -122,4 +122,10 @@ public class ConnectivityStore implements StoreCallback, Store {
         // ignore
     }
 
+    @Override
+    public boolean signOut(Context context) {
+        // TODO: think whether we can ignore it or not
+        return false;
+    }
+
 }
