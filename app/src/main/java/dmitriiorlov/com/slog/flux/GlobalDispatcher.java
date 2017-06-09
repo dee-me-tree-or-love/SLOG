@@ -98,7 +98,7 @@ public class GlobalDispatcher implements Dispatcher {
         }
     }
 
-    public void updateUserDocumentList(List<Document> documentList){
+    public void updateUserDocumentList(List<Document> documentList) {
         try {
 
             for (StoreCallback sc : this.mStoreCallbacks) {
@@ -110,11 +110,35 @@ public class GlobalDispatcher implements Dispatcher {
         }
     }
 
+//    public void updateUserDocumentList(List<Document> documentList, List<String> keys){
+//        try {
+//
+//            for (StoreCallback sc : this.mStoreCallbacks) {
+//                sc.onProfileDocumentsChanged(documentList, keys);
+//            }
+//        } catch (Exception e) {
+//
+//            Log.e("Document update problem", e.getMessage());
+//        }
+//    }
+
     public void performSignOut(Context context) {
         try {
 
             for (StoreCallback sc : this.mStoreCallbacks) {
                 sc.signOut(context);
+            }
+        } catch (Exception e) {
+
+            Log.e("Signing out problem", e.getMessage());
+        }
+    }
+
+    public void requestDocumentByKey(Context context, String key) {
+        try {
+
+            for (StoreCallback sc : this.mStoreCallbacks) {
+                sc.queryDocumentByKey(context,key);
             }
         } catch (Exception e) {
 

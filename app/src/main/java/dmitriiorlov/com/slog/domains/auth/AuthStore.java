@@ -310,6 +310,7 @@ public class AuthStore implements Store, StoreCallback {
         // ignoring
     }
 
+
     @Override
     public boolean signOut(Context context) {
         // TODO: think whether this handling is good enough
@@ -320,6 +321,11 @@ public class AuthStore implements Store, StoreCallback {
         AuthStore.getInstance().mInputName = "";
         // should we notify?
         return false;
+    }
+
+    @Override
+    public void queryDocumentByKey(Context context, String key) {
+
     }
 
 

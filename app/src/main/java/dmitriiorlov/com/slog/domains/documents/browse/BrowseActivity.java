@@ -2,24 +2,34 @@ package dmitriiorlov.com.slog.domains.documents.browse;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dmitriiorlov.com.slog.R;
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
+import dmitriiorlov.com.slog.data.models.Document;
 import dmitriiorlov.com.slog.domains.auth.LoginActivity;
 import dmitriiorlov.com.slog.domains.documents.DocumentStore;
+import dmitriiorlov.com.slog.domains.documents.browse.viewholders.BrowseDocumentViewHolder;
 import dmitriiorlov.com.slog.domains.global.ConnectivityStore;
 import dmitriiorlov.com.slog.domains.global.ProfileStore;
 import dmitriiorlov.com.slog.flux.GlobalDispatcher;
@@ -34,6 +44,8 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     @BindView(R.id.browse_recycler_view)
     RecyclerView mRecyclerView;
 
+    private boolean mRecyclerViewIsSetUp = false;
+    private FirebaseRecyclerAdapter mDocumentBrowseAdapter;
 
     // Stores:
     // responsible for the document(s) related data
@@ -64,6 +76,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
         // set the app bar
         setSupportActionBar(mToolbar);
+        // setup the recycler view with notes
 
         // check if the user is actually retrieved
         try {
@@ -72,6 +85,69 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
             Log.e("Current user", e.getMessage());
         }
     }
+
+
+    private void setupRecyclerView() {
+        Query query = FireBaseUtil.getInstance()
+                .getUserDocumentsDatabaseReference()
+                .orderByChild("date");
+
+//        DatabaseReference ref = FireBaseUtil.getInstance().getUserDocumentsDatabaseReference();
+        // TODO: verify that it works
+        mDocumentBrowseAdapter = new FirebaseRecyclerAdapter<Document, BrowseDocumentViewHolder>
+                (Document.class, R.layout.layout_document_row, BrowseDocumentViewHolder.class, query) {
+            @Override
+            protected void populateViewHolder(BrowseDocumentViewHolder viewHolder, Document model, int position) {
+                viewHolder.setTextViewDate(model.getDate());
+                viewHolder.setTextViewText(model.getText());
+            }
+
+            // handling clicks
+            @Override
+            public BrowseDocumentViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+                BrowseDocumentViewHolder viewHolder = super.onCreateViewHolder(parent, viewType);
+                final ViewGroup parentRef = parent;
+                viewHolder.setOnClickListener(new BrowseDocumentViewHolder.ClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        // TODO: make the handling of the redirection to the clicked note
+//                        Toast.makeText(parentRef.getContext(), "Item clicked at "
+//                                + position + " with "
+//                                + mDocumentBrowseAdapter.getRef(position).getKey(), Toast.LENGTH_SHORT).show();
+                        GlobalDispatcher.getInstance().requestDocumentByKey(parent.getContext(),
+                                // getting the key of the object in the firebase
+                                mDocumentBrowseAdapter.getRef(position).getKey().toString());
+                    }
+
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+                        Toast.makeText(parentRef.getContext(), "Item long clicked at " + position, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return viewHolder;
+            }
+
+        };
+
+        try {
+            // this will make it reversed -- used to order the notes in descending
+            LinearLayoutManager llm = new LinearLayoutManager(this);
+            llm.setStackFromEnd(true);
+            llm.setReverseLayout(true);
+            mRecyclerView.setLayoutManager(llm);
+
+            mRecyclerView.setAdapter(mDocumentBrowseAdapter);
+
+            mRecyclerViewIsSetUp = true;
+        } catch (NullPointerException e) {
+
+            Log.e("RecyclerViewFail", e.getMessage());
+            // Maybe binding didn't work
+            this.mRecyclerView = (RecyclerView) findViewById(R.id.browse_recycler_view);
+            this.setupRecyclerView();
+        }
+    }
+
 
     // [ MENU STUFF ]
     // Menu icons are inflated just as they were with actionbar
@@ -104,7 +180,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     }
 
     /**
-     * Used to setup the popum menu and its option handlers
+     * Used to setup the popup menu and its option handlers
      *
      * @param v
      */
@@ -167,7 +243,14 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         if (mCloudPopupMenu == null) {
             this.preparePopupMenu(v);
         }
-        mCloudPopupMenu.show();
+        // TODO: research WHY! does it give the errors sometimes...
+        try {
+
+            mCloudPopupMenu.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("PopupMenuFailure", e.getMessage());
+        }
     }
 
     @Override
@@ -177,16 +260,27 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
     @Override
     public void updateStoreState(Store store) {
+        // TODO: split those into smaller single methods
         StoreTypes st = store.getType();
         switch (st) {
+
+//            //!!!!!!!! case DOCUMENT_STORE:
             case DOCUMENT_STORE:
+
                 // do the related document display adjustments
-                Toast.makeText(this, "Document Store notification: " + DocumentStore.getInstance().getDocumentList().size(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Document Store notification: " + DocumentStore.getInstance().getDocumentList().size(), Toast.LENGTH_SHORT).show();
+                if (!this.mRecyclerViewIsSetUp) {
+                    this.setupRecyclerView();
+                }
+                mDocumentBrowseAdapter.notifyDataSetChanged();
                 break;
+
+//            //!!!!!!!! case CONNECTIVITY_STORE:
             case CONNECTIVITY_STORE:
 
                 // do the connectivity related display adjustments
                 if (ConnectivityStore.getInstance().getIsNetworkConnected()) {
+
                     Menu menu = this.mToolbar.getMenu();
                     MenuItem mi = menu.findItem(R.id.miBrowseCloud);
                     mi.setIcon(R.drawable.ic_cloud_done_black_24dp);
@@ -199,6 +293,8 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
 //                Toast.makeText(this,"Connectivity Store notifiacation", Toast.LENGTH_SHORT).show();
                 break;
+
+//            //!!!!!!!! case PROFILE_STORE:
             case PROFILE_STORE:
 
                 try {

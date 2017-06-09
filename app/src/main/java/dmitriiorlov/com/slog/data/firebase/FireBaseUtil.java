@@ -12,6 +12,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.models.Document;
@@ -62,6 +64,13 @@ public class FireBaseUtil {
         return this.mDatabaseReference;
     }
 
+    public DatabaseReference getUserDocumentsDatabaseReference(){
+        FirebaseUser currentUser = FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser();
+        DatabaseReference ref = FireBaseUtil.getInstance().getDatabaseReference()
+                .child("users").child(currentUser.getUid()).child("documents");
+        return ref;
+    }
+
     public void requestCurrentUserData(){
 
         FirebaseUser currentUser = FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser();
@@ -83,19 +92,29 @@ public class FireBaseUtil {
     }
 
     public void requestCurrentUserDocuments(){
-        FirebaseUser currentUser = FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser();
-        DatabaseReference ref = FireBaseUtil.getInstance().getDatabaseReference()
-                .child("users").child(currentUser.getUid()).child("documents");
+        DatabaseReference ref = this.getUserDocumentsDatabaseReference();
         // getting the data once from the firebase
         ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Document> documentList = new ArrayList<Document>();
+//                List<String> keys = new ArrayList<String>();
                 for(DataSnapshot docSnapshot: dataSnapshot.getChildren()){
                     Document doc = docSnapshot.getValue(Document.class);
                     documentList.add(doc);
+//                    keys.add(docSnapshot.getKey());
                 }
+                // sort the stuff ... maybe?
+                // ArrayList.sort is not supported :C
+                // TODO: make sure this stuff works well enough...
+                Collections.sort(documentList, new Comparator<Document>() {
+                    @Override
+                    public int compare(Document o1, Document o2) {
+                        return (int)(o1.getDate() - o2.getDate());
+                    }
+                });
+
                 GlobalDispatcher.getInstance().updateUserDocumentList(documentList);
             }
 

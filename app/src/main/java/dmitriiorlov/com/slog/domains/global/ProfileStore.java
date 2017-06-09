@@ -132,6 +132,7 @@ public class ProfileStore implements StoreCallback, Store {
         // ignoring...
     }
 
+
     @Override
     public boolean signOut(Context context) {
         // TODO: handle the sign out request
@@ -149,6 +150,11 @@ public class ProfileStore implements StoreCallback, Store {
 
         notifyStateChange();
         return isLoggedIn;
+    }
+
+    @Override
+    public void queryDocumentByKey(Context context, String key) {
+
     }
 
     private void unsetProfileName(){

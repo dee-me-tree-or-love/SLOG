@@ -38,19 +38,31 @@ public class DocumentStore implements Store, StoreCallback {
     // [ SINGLETON PATTERN STUFF ]
 
     private List<Document> mDocumentList;
+    @Deprecated
+    private List<String> mDocumentKeys;
+
+    private String mSelectedDocumentKey;
+
 
     // list of the ControllerViews Observing the store
     private List<ControllerView> mControllerViews;
 
-    private  DocumentStore() {
+    private DocumentStore() {
         this.mControllerViews = new ArrayList<>();
         this.registerToDispatcher();
 
+        this.mDocumentKeys = new ArrayList<>();
         this.mDocumentList = new ArrayList<>();
+        this.mSelectedDocumentKey = "";
     }
 
-    public List<Document> getDocumentList(){
+    public List<Document> getDocumentList() {
         return this.mDocumentList;
+    }
+
+    @Deprecated
+    public List<String> getDocumentKeys() {
+        return this.mDocumentKeys;
     }
 
     @Override
@@ -96,10 +108,23 @@ public class DocumentStore implements Store, StoreCallback {
         notifyStateChange();
     }
 
+//    @Override
+//    public void onProfileDocumentsChanged(List<Document> documentList, List<String> keys) {
+//        // TODO: handle the new documents!
+//        this.mDocumentList = documentList;
+//        this.mDocumentKeys = keys;
+//        notifyStateChange();
+//    }
+
     @Override
     public boolean signOut(Context context) {
         this.destroySelf();
         return false;
+    }
+
+    @Override
+    public void queryDocumentByKey(Context context, String key) {
+
     }
 
     // TODO: think whether you can move it to an abstract class... cause it is fucking annoying to retype...

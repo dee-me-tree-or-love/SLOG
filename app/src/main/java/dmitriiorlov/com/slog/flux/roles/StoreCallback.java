@@ -14,11 +14,14 @@ import dmitriiorlov.com.slog.data.models.User;
 public interface StoreCallback {
 
     void registerToDispatcher();
+
     void deregisterFromDispatcher();
+
     void destroySelf();
 
     /**
      * The sign in method
+     *
      * @param context
      * @param email
      * @param password
@@ -28,6 +31,7 @@ public interface StoreCallback {
 
     /**
      * The sign up method
+     *
      * @param context
      * @param name
      * @param email
@@ -38,6 +42,7 @@ public interface StoreCallback {
 
     /**
      * Checks if the connection is established
+     *
      * @param context
      * @return
      */
@@ -48,5 +53,10 @@ public interface StoreCallback {
 
     void onProfileDocumentsChanged(List<Document> documentList);
 
+    // REMOVED
+//    void onProfileDocumentsChanged(List<Document> documentList, List<String> keys);
+
     boolean signOut(Context context);
+
+    void queryDocumentByKey(Context context, String key);
 }
