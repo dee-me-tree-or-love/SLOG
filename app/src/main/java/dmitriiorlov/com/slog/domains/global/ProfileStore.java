@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
@@ -50,10 +51,10 @@ public class ProfileStore implements StoreCallback, Store {
     private boolean mSignedIn;
 
     // list of the ControllerViews Observing the store
-    private List<ControllerView> mControllerViews;
+    private HashSet<ControllerView> mControllerViews;
 
     private  ProfileStore(){
-        this.mControllerViews = new ArrayList<>();
+        this.mControllerViews = new HashSet<>();
         this.registerToDispatcher();
 
         this.mProfileName = "the ?";

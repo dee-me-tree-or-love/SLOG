@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -64,17 +65,24 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     private PopupMenu mCloudPopupMenu;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        this.subscribeToStores();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse);
 
         // bind all the views
         ButterKnife.bind(this);
-        // bind the stores
-        // TODO: figure out how to make the goddam orientation change not break anything....
-        if(savedInstanceState==null){
-            this.subscribeToStores();
-        }
+        // bind the stores\
+        // we are not afraid to resubscribe, since the stores now use hash sets as the collections
+        // of the ControllerViews, which makes all the entries in the set unique
+//        if(savedInstanceState==null){
+        this.subscribeToStores();
+//        }
 
 
         // set the app bar
@@ -92,7 +100,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         }
     }
 
-    private void subscribeToStores(){
+    private void subscribeToStores() {
         mDocumentStore = DocumentStore.getInstance();
         mDocumentStore.subscribeControllerView(this);
 
@@ -133,7 +141,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
                 viewHolder.setOnClickListener(new BrowseDocumentViewHolder.ClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        // TODO: make the handling of the redirection to the clicked note
+                        // TODO: it handles the click twice, figure out why!
 //                        Toast.makeText(parentRef.getContext(), "Item clicked at "
 //                                + position + " with "
 //                                + mDocumentBrowseAdapter.getRef(position).getKey(), Toast.LENGTH_SHORT).show();
@@ -179,6 +187,9 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_browse, menu);
         // check whether the app is online
+//        MenuItem mi =  menu.findItem(R.id.miBrowseCloud);
+//        View v = MenuItemCompat.getActionView(mi);
+//        preparePopupMenu(v);
         GlobalDispatcher.getInstance().checkNetworkConnection(this);
         return true;
     }
@@ -193,7 +204,9 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
             case R.id.miBrowseCloud:
 //                Toast.makeText(this,"Pressed Cloud",Toast.LENGTH_SHORT).show();
-                this.showMenuPopup(findViewById(item.getItemId()));
+                View v = findViewById(item.getItemId());
+                this.preparePopupMenu(v);
+                this.showMenuPopup(v);
                 break;
 
             default:
@@ -212,6 +225,8 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         final Context context = this;
         mCloudPopupMenu.getMenuInflater().inflate(R.menu.menu_browse_popup, mCloudPopupMenu.getMenu());
         // registering actions:
+        boolean signedIn = (ProfileStore.getInstance().getIsSignedIn());
+        this.setLogoutButtonEnabled(signedIn);
         mCloudPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -290,7 +305,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         }
 
         // check if needs redirecting to the edit activity:
-        if(DocumentStore.getInstance().getIsInEditMode()){
+        if (DocumentStore.getInstance().getIsInEditMode()) {
 
             // do the switch of the activities
             // no finish in this case, as we do not need to loose the state
@@ -404,4 +419,13 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         mConnectivityStore.unSubscribeControllerView(this);
         mDocumentStore.unSubscribeControllerView(this);
     }
+
+    @Override
+    protected void onStop() {
+        // needs to call
+        super.onStop();
+        this.unsubscribeFromAll();
+    }
+
+
 }

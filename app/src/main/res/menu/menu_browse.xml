@@ -13,6 +13,7 @@
         android:id="@+id/miBrowseCloud"
         android:icon="@drawable/ic_cloud_off_black_24dp"
         android:title="Sync"
+        android:actionViewClass="android.widget.ImageButton"
         app:showAsAction="always" />
     <!-- setting to always is not nice, but nevertheless is the only option in out case -->
     <!-- "Avoid using this unless it's critical that the item always appear in the action bar." -->

@@ -3,6 +3,7 @@ package dmitriiorlov.com.slog.domains.global;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.models.Document;
@@ -38,13 +39,13 @@ public class ConnectivityStore implements StoreCallback, Store {
     // [ SINGLETON PATTERN STUFF ]
 
     // list of the ControllerViews Observing the store
-    private List<ControllerView> mControllerViews;
+    private HashSet<ControllerView> mControllerViews;
     // private properties
     private boolean mIsConnected;
 
 
     private  ConnectivityStore(){
-        this.mControllerViews = new ArrayList<>();
+        this.mControllerViews = new HashSet<>();
         this.mIsConnected = false;
 
         GlobalDispatcher.getInstance().addStoreCallback(this);

@@ -188,7 +188,7 @@ public class EditActivity extends AppCompatActivity implements ControllerView {
             finish();
         }else{
 
-            Toast.makeText(this,"Not possible to delete now",Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this,"Not possible to delete now",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -199,6 +199,10 @@ public class EditActivity extends AppCompatActivity implements ControllerView {
         mDocumentStore.unSubscribeControllerView(this);
     }
 
-
+    @Override
+    protected void onStop(){
+        super.onStop();
+        this.unsubscribeFromAll();
+    }
 
 }

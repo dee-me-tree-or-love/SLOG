@@ -10,6 +10,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
@@ -58,7 +59,7 @@ public class AuthStore implements Store, StoreCallback {
     // [ STORE IMPLEMENTATION STUFF ]
 
     // list of the ControllerViews Observing the store
-    private List<ControllerView> mControllerViews;
+    private HashSet<ControllerView> mControllerViews;
     // the email entered by the user
     private String mEmail;
     private String mInputEmail;
@@ -69,7 +70,7 @@ public class AuthStore implements Store, StoreCallback {
 
 
     protected AuthStore() {
-        this.mControllerViews = new ArrayList<>();
+        this.mControllerViews = new HashSet<>();
         this.mEmail = "";
         this.mInputName = "";
         this.mInputEmail = "";

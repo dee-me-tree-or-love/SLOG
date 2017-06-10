@@ -4,6 +4,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
@@ -62,10 +63,10 @@ public class DocumentStore implements Store, StoreCallback {
      */
 
 
-    private List<ControllerView> mControllerViews;
+    private HashSet<ControllerView> mControllerViews;
 
     private DocumentStore() {
-        this.mControllerViews = new ArrayList<>();
+        this.mControllerViews = new HashSet<>();
         this.registerToDispatcher();
 
         this.mDocumentKeys = new ArrayList<>();
