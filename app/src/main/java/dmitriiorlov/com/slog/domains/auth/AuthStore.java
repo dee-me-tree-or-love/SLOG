@@ -333,6 +333,16 @@ public class AuthStore implements Store, StoreCallback {
         // ignored
     }
 
+    @Override
+    public void onDocumentSubmitAttempt(Document localDocument) {
+
+    }
+
+    @Override
+    public void onDocumentRemoveAttempt(String key) {
+
+    }
+
 
 }
 

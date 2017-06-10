@@ -2,6 +2,7 @@ package dmitriiorlov.com.slog.domains.documents.browse;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -70,14 +71,11 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         // bind all the views
         ButterKnife.bind(this);
         // bind the stores
-        mDocumentStore = DocumentStore.getInstance();
-        mDocumentStore.subscribeControllerView(this);
+        // TODO: figure out how to make the goddam orientation change not break anything....
+        if(savedInstanceState==null){
+            this.subscribeToStores();
+        }
 
-        mConnectivityStore = ConnectivityStore.getInstance();
-        mConnectivityStore.subscribeControllerView(this);
-
-        mProfileStore = ProfileStore.getInstance();
-        mProfileStore.subscribeControllerView(this);
 
         // set the app bar
         setSupportActionBar(mToolbar);
@@ -94,6 +92,16 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         }
     }
 
+    private void subscribeToStores(){
+        mDocumentStore = DocumentStore.getInstance();
+        mDocumentStore.subscribeControllerView(this);
+
+        mConnectivityStore = ConnectivityStore.getInstance();
+        mConnectivityStore.subscribeControllerView(this);
+
+        mProfileStore = ProfileStore.getInstance();
+        mProfileStore.subscribeControllerView(this);
+    }
 
     // opening the edit activity with the blank key --> the new note is being created
     @OnClick(R.id.browse_fab_new_note)
@@ -325,7 +333,6 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
     @Override
     public void updateStoreState(Store store) {
-        // TODO: split those into smaller single methods
         StoreTypes st = store.getType();
         switch (st) {
 
@@ -383,6 +390,12 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
         } catch (Exception e) {
             Log.e("RENDER BROWSE ERROR", e.getMessage());
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
     }
 
     @Override

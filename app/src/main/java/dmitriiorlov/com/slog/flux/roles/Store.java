@@ -8,6 +8,8 @@ import dmitriiorlov.com.slog.flux.StoreTypes;
 
 public interface Store {
 
+    // TODO: maybe switch to the HashSet implementation of the holder of the Controller Views
+
     void subscribeControllerView(ControllerView cv);
     void unSubscribeControllerView(ControllerView cv);
     StoreTypes getType();

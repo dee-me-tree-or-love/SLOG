@@ -37,8 +37,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".domains.documents.browse.BrowseActivity" />
-        <activity android:name=".domains.documents.edit.EditActivity"></activity>
+        <activity
+            android:name=".domains.documents.browse.BrowseActivity"
+            android:configChanges="orientation|keyboardHidden" />
+        <activity
+            android:name=".domains.documents.edit.EditActivity"
+            android:configChanges="orientation|keyboardHidden" />
     </application>
 
 </manifest>

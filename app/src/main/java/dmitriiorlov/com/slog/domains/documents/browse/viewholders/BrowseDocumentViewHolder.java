@@ -18,7 +18,7 @@ import dmitriiorlov.com.slog.R;
 
 public class BrowseDocumentViewHolder extends RecyclerView.ViewHolder {
 
-    final static private int SUBSTRING_SIZE = 60;
+    final static private int SUBSTRING_SIZE = 30;
 
     @BindView(R.id.text_document_browse_date)
     TextView mTextViewDate;
@@ -71,7 +71,7 @@ public class BrowseDocumentViewHolder extends RecyclerView.ViewHolder {
         // text might be not set...
         try {
             if (text.length() < lastIndex) {
-                lastIndex = text.length() - 1;
+                lastIndex = text.length();
                 trailer = "";
             }
             if (text.length() != 0) {

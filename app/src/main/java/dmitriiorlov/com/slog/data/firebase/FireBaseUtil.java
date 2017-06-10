@@ -1,6 +1,7 @@
 package dmitriiorlov.com.slog.data.firebase;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -161,6 +162,35 @@ public class FireBaseUtil {
         });
 
         return true;
+    }
+
+    /**
+     * Submit a change to (or publish a new) specified document
+     * @param documentSubmission
+     * @param isNew
+     * @param key
+     */
+    public void submitDocument(Document documentSubmission, boolean isNew, @Nullable String key){
+        String theKey = key; // might be null
+        if(isNew){
+            theKey = this.getUserDocumentsDatabaseReference().push().getKey();
+        }
+        this.getUserDocumentsDatabaseReference().child(theKey).setValue(documentSubmission);
+    }
+
+
+    public boolean deleteDocument(String documentKey){
+        if(documentKey.length()==0){
+            return false;
+        }
+        try{
+            this.getUserDocumentsDatabaseReference().child(documentKey).removeValue();
+            return true;
+        }catch (Exception e){
+
+            Log.e("DeletingDocumentError",e.getMessage());
+            return false;
+        }
     }
 
     public boolean checkWhetherIsLoggedIn() {

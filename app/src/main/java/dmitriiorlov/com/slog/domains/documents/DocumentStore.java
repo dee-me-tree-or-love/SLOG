@@ -3,6 +3,7 @@ package dmitriiorlov.com.slog.domains.documents;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dmitriiorlov.com.slog.data.firebase.FireBaseUtil;
@@ -48,8 +49,19 @@ public class DocumentStore implements Store, StoreCallback {
     // to be requested from the edit document view, since this determines push or update method on the firebase instance
     private boolean mIsNewDocument;
     private String mSelectedDocumentKey;
+    private boolean mIsDeletedSuccessful;
 
     // list of the ControllerViews Observing the store
+    // TODO: consider the HashSet as a holder of the C.Views
+    /*
+     * // the set object can be easily transformed to array to iterate over
+        Object[] array = set.toArray();
+
+        for(int i=0; i<array.length; i++)
+        Object o = array[i];
+     */
+
+
     private List<ControllerView> mControllerViews;
 
     private DocumentStore() {
@@ -62,13 +74,18 @@ public class DocumentStore implements Store, StoreCallback {
         this.mDocumentInEditMode = null;
         this.mIsInEditMode = false;
         mIsNewDocument = false;
+        mIsDeletedSuccessful = false;
+    }
+
+    public boolean getIsSuccesfullyDeletedDocument() {
+        return this.mIsDeletedSuccessful;
     }
 
     public String getSelectedDocumentKey() {
         return this.mSelectedDocumentKey;
     }
 
-    public boolean getIsNewDocument(){
+    public boolean getIsNewDocument() {
         return this.mIsNewDocument;
     }
 
@@ -151,7 +168,7 @@ public class DocumentStore implements Store, StoreCallback {
         // request the resource once from the firebase with a given key
         boolean queryResult = FireBaseUtil.getInstance().getCurrentUserDocumentByKey(key);
         // didn't retrieve anything --> need to create a new document
-        if(!queryResult){
+        if (!queryResult) {
             this.mIsInEditMode = true;
             this.mDocumentInEditMode = new Document();
             this.mIsNewDocument = true;
@@ -171,6 +188,44 @@ public class DocumentStore implements Store, StoreCallback {
         this.mIsNewDocument = false;
         this.mSelectedDocumentKey = key;
         notifyStateChange();
+    }
+
+    @Override
+    public void onDocumentSubmitAttempt(Document localDocument) {
+        // the text is different
+        if (!localDocument.getText().equals(this.mDocumentInEditMode.getText())
+//                && localDocument.getText()!=""
+                ) {
+            Date updateTime = new Date();
+            localDocument.setDate(updateTime.getTime());
+            // should write to the database
+            FireBaseUtil.getInstance().submitDocument(localDocument, this.mIsNewDocument, this.mSelectedDocumentKey);
+        }
+        this.dropSelectedDocument();
+        // if the text is the same as in the original - skip it
+    }
+
+    @Override
+    public void onDocumentRemoveAttempt(String key) {
+        boolean deleteSuccess = FireBaseUtil.getInstance().deleteDocument(key);
+        if (deleteSuccess) {
+            this.dropSelectedDocument();
+            mIsDeletedSuccessful = true;
+            notifyStateChange();
+            mIsDeletedSuccessful = false;
+        } else {
+            mIsDeletedSuccessful = false;
+        }
+    }
+
+    /**
+     * Removes the trails of the selected document from the store
+     */
+    private void dropSelectedDocument() {
+        this.mDocumentInEditMode = null;
+        this.mIsInEditMode = false;
+        this.mIsNewDocument = true;
+        this.mSelectedDocumentKey = "";
     }
 
     // TODO: think whether you can move it to an abstract class... cause it is fucking annoying to retype...

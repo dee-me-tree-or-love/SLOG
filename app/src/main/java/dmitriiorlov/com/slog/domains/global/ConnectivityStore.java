@@ -139,4 +139,14 @@ public class ConnectivityStore implements StoreCallback, Store {
 
     }
 
+    @Override
+    public void onDocumentSubmitAttempt(Document localDocument) {
+
+    }
+
+    @Override
+    public void onDocumentRemoveAttempt(String key) {
+
+    }
+
 }

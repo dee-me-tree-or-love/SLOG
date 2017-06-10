@@ -1,6 +1,7 @@
 package dmitriiorlov.com.slog.flux;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class GlobalDispatcher implements Dispatcher {
 
     // [ SINGLETON PATTERN STUFF ]
 
+    // TODO: consider using Hash Set to avoid duplicates
     private List<StoreCallback> mStoreCallbacks = new ArrayList<>();
 
     // solution from SourceMaking.com
@@ -157,4 +159,29 @@ public class GlobalDispatcher implements Dispatcher {
             Log.e("Signing out problem", e.getMessage());
         }
     }
+
+    public void attemptDocumentSubmit(Document localDocument){
+        try {
+
+            for (StoreCallback sc : this.mStoreCallbacks) {
+                sc.onDocumentSubmitAttempt(localDocument);
+            }
+        } catch (Exception e) {
+
+            Log.e("Signing out problem", e.getMessage());
+        }
+    }
+
+    public void attemptDocumentRemove(String key){
+        try {
+
+            for (StoreCallback sc : this.mStoreCallbacks) {
+                sc.onDocumentRemoveAttempt(key);
+            }
+        } catch (Exception e) {
+
+            Log.e("Signing out problem", e.getMessage());
+        }
+    }
+
 }

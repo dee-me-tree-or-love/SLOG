@@ -61,4 +61,8 @@ public interface StoreCallback {
     void queryDocumentByKey(Context context, String key);
 
     void onDocumentDataRetrieved(Document document, String key);
+
+    void onDocumentSubmitAttempt(Document localDocument);
+
+    void onDocumentRemoveAttempt(String key);
 }

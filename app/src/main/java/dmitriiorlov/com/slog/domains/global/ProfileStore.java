@@ -162,6 +162,16 @@ public class ProfileStore implements StoreCallback, Store {
 
     }
 
+    @Override
+    public void onDocumentSubmitAttempt(Document localDocument) {
+
+    }
+
+    @Override
+    public void onDocumentRemoveAttempt(String key) {
+
+    }
+
     private void unsetProfileName(){
         this.mProfileName = "the ?";
     }
