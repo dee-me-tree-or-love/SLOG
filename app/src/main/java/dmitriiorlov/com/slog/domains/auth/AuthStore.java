@@ -148,7 +148,7 @@ public class AuthStore implements Store, StoreCallback {
      */
     public boolean isFirebaseLoggedIn(Context context) {
         //if getCurrentUser does not returns null => already logged in
-        return FireBaseUtil.getInstance().checkWhetherIsLoggedIn(context);
+        return FireBaseUtil.getInstance().checkWhetherIsLoggedIn();
     }
 
     @Override

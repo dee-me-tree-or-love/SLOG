@@ -136,7 +136,7 @@ public class ProfileStore implements StoreCallback, Store {
     @Override
     public boolean signOut(Context context) {
         // TODO: handle the sign out request
-        boolean isLoggedIn = FireBaseUtil.getInstance().checkWhetherIsLoggedIn(context);
+        boolean isLoggedIn = FireBaseUtil.getInstance().checkWhetherIsLoggedIn();
         if(isLoggedIn){
 
             FireBaseUtil.getInstance().getFirebaseAuth().signOut();

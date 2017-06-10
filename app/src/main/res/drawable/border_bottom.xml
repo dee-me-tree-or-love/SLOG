@@ -8,7 +8,7 @@
 
     <item android:bottom="1dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/cardview_light_background" />  <!-- background color -->
+            <solid android:color="@color/white" />  <!-- background color -->
         </shape>
     </item>
 </layer-list>

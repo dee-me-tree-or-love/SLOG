@@ -47,6 +47,7 @@ public class FireBaseUtil {
         private static final FireBaseUtil INSTANCE = new FireBaseUtil();
     }
 
+
     public static FireBaseUtil getInstance() {
         return SingletonHolder.INSTANCE;
     }
@@ -137,15 +138,20 @@ public class FireBaseUtil {
             return false;
             // meaning, we are not even going to look for such key, handle it yourself
         }
-
+//        // TODO: figure the fuck out why this shit broke the whole fucking application!
+        // answer - breakpoints......
         // reference to the child of the user's documents => the only one with the specified ID.
-        DatabaseReference ref = FireBaseUtil.getInstance()
-                .getUserDocumentsDatabaseReference().child(key);
+        DatabaseReference ref = this.getUserDocumentsDatabaseReference().child(key);
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // if the datasnapshot was retrieved succesfully
+                Log.d("DocumentByKey", "Succesfully retrieved the data snapshot!");
+                Document documentRetrieved = dataSnapshot.getValue(Document.class);
+                // notify of the success!
+                GlobalDispatcher.getInstance()
+                        .retrievedSingleDocument(documentRetrieved, dataSnapshot.getKey());
             }
 
             @Override
@@ -157,8 +163,8 @@ public class FireBaseUtil {
         return true;
     }
 
-    public boolean checkWhetherIsLoggedIn(Context context) {
-        return (FireBaseUtil.getInstance().getFirebaseAuth().getCurrentUser() != null);
+    public boolean checkWhetherIsLoggedIn() {
+        return (this.getFirebaseAuth().getCurrentUser() != null);
     }
 
 //    public static boolean loginWithEmailAndPassword(String email, String password){
