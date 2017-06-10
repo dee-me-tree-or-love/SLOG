@@ -1,5 +1,6 @@
 package dmitriiorlov.com.slog.domains.documents.browse;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -42,7 +44,7 @@ import dmitriiorlov.com.slog.flux.StoreTypes;
 import dmitriiorlov.com.slog.flux.roles.ControllerView;
 import dmitriiorlov.com.slog.flux.roles.Store;
 
-public class BrowseActivity extends AppCompatActivity implements ControllerView {
+public class BrowseActivity extends AppCompatActivity implements ControllerView, SearchView.OnQueryTextListener {
 
     @BindView(R.id.browse_toolbar)
     Toolbar mToolbar;
@@ -86,6 +88,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
 
         // set the app bar
+        mToolbar.setNavigationIcon(R.drawable.ic_arrow_upward_black_24dp);
         setSupportActionBar(mToolbar);
         // TODO: good try, maybe switch to having the connectivity thing on the left, but it is not the major concern
         // for adding stuff you should still use a FAB
@@ -99,6 +102,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
             Log.e("Current user", e.getMessage());
         }
     }
+
 
     private void subscribeToStores() {
         mDocumentStore = DocumentStore.getInstance();
@@ -125,6 +129,28 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
 //        DatabaseReference ref = FireBaseUtil.getInstance().getUserDocumentsDatabaseReference();
         // TODO: verify that it works
+        this.setmDocumentBrowseAdapter(query);
+
+        try {
+            // this will make it reversed -- used to order the notes in descending
+            LinearLayoutManager llm = new LinearLayoutManager(this);
+            llm.setStackFromEnd(true);
+            llm.setReverseLayout(true);
+            mRecyclerView.setLayoutManager(llm);
+
+            mRecyclerView.setAdapter(mDocumentBrowseAdapter);
+
+            mRecyclerViewIsSetUp = true;
+        } catch (NullPointerException e) {
+
+            Log.e("RecyclerViewFail", e.getMessage());
+            // Maybe binding didn't work
+            this.mRecyclerView = (RecyclerView) findViewById(R.id.browse_recycler_view);
+            this.setupRecyclerView();
+        }
+    }
+
+    private void setmDocumentBrowseAdapter(Query query){
         mDocumentBrowseAdapter = new FirebaseRecyclerAdapter<Document, BrowseDocumentViewHolder>
                 (Document.class, R.layout.layout_document_row, BrowseDocumentViewHolder.class, query) {
             @Override
@@ -160,23 +186,6 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 
         };
 
-        try {
-            // this will make it reversed -- used to order the notes in descending
-            LinearLayoutManager llm = new LinearLayoutManager(this);
-            llm.setStackFromEnd(true);
-            llm.setReverseLayout(true);
-            mRecyclerView.setLayoutManager(llm);
-
-            mRecyclerView.setAdapter(mDocumentBrowseAdapter);
-
-            mRecyclerViewIsSetUp = true;
-        } catch (NullPointerException e) {
-
-            Log.e("RecyclerViewFail", e.getMessage());
-            // Maybe binding didn't work
-            this.mRecyclerView = (RecyclerView) findViewById(R.id.browse_recycler_view);
-            this.setupRecyclerView();
-        }
     }
 
 
@@ -190,6 +199,11 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
 //        MenuItem mi =  menu.findItem(R.id.miBrowseCloud);
 //        View v = MenuItemCompat.getActionView(mi);
 //        preparePopupMenu(v);
+        // Associate searchable configuration with the SearchView
+        final MenuItem item = menu.findItem(R.id.miBrowseSearch);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
         GlobalDispatcher.getInstance().checkNetworkConnection(this);
         return true;
     }
@@ -210,10 +224,14 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
                 break;
 
             default:
+                mRecyclerView.smoothScrollToPosition(mRecyclerView.getAdapter().getItemCount());
+                //Toast.makeText(this,"Pressed something: " + item.getItemId(),Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;
     }
+
+
 
     /**
      * Used to setup the popup menu and its option handlers
@@ -428,4 +446,35 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     }
 
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+
+        return false;
+    }
+
+
+    // used for filtering
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        Query query = null;
+//        newText = newText.toLowerCase();
+        if(newText.length()==0){
+             query = FireBaseUtil.getInstance()
+                    .getUserDocumentsDatabaseReference()
+                    .orderByChild("date");
+        }else {
+            query = FireBaseUtil.getInstance().getUserDocumentsDatabaseReference()
+                    .orderByChild("lowerCaseText")
+                    .startAt(newText)
+                    .endAt(newText+"\uf8ff");
+        }
+        // alter the reference
+
+
+        this.setmDocumentBrowseAdapter(query);
+        mRecyclerView.swapAdapter(mDocumentBrowseAdapter,true);
+
+        return true;
+    }
 }

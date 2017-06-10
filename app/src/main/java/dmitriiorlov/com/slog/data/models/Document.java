@@ -21,7 +21,7 @@ public class Document {
     public String getText(){
         return this.text;
     }
-
+    public String getLowerCaseText(){return this.text.toLowerCase();}
     /**
      * The method gets the epoch time
      * see the answer here: https://stackoverflow.com/questions/37976468/saving-and-retrieving-date-in-firebase
