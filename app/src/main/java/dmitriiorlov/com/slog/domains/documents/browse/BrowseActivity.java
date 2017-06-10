@@ -98,7 +98,7 @@ public class BrowseActivity extends AppCompatActivity implements ControllerView 
     // opening the edit activity with the blank key --> the new note is being created
     @OnClick(R.id.browse_fab_new_note)
     public void createNewNote(View view) {
-        Toast.makeText(this, "Creating a new note", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Creating a new note", Toast.LENGTH_SHORT).show();
         GlobalDispatcher.getInstance().requestDocumentByKey(this, "");
     }
 
