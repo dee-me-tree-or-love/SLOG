@@ -17,7 +17,7 @@ Keep all your documents saved and always ready and never lose you thoughts :v:
 
 The data is saved using Firebase. 
 *Thanks StackOverflow for answering so many of my questions :D *
-<!--```markdown
+<!-- ```markdown
 Syntax highlighted code block
 
 # Header 1
