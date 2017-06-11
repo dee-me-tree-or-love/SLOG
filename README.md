@@ -4,10 +4,7 @@
 
 Welcome to the house of the tiny SLOG application.  
 The SLOG ('слог') is the russian for syllable. 
-<!--You can use the [editor on GitHub](https://github.com/dee-me-tree-or-love/SLOG/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
--->
 ### Notes in the cloud
 
 Take notes of all the coolest ideas and weirdest quotes you can encounter in the wild  
