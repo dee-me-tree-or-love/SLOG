@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".domains.auth.LoginActivity">
+    tools:context=".domains.auth.LoginActivity"
+    android:background="@drawable/android_background_v2_small">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/login_toolbar"
@@ -22,7 +23,8 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/fragment_container"
         android:layout_centerInParent="true"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="#77FFFFFF">
 
     </FrameLayout>
 </RelativeLayout>
