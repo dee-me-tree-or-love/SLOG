@@ -1,14 +1,23 @@
-## Welcome to GitHub Pages
+## Hello Everyone!
+### И с днем рождения, Серег! 
+***Идея для СЛОГа - история про твой телефон и утраченые заметки. Чувак, нельзя так, никогда больше не теряй все крутейшие фразы про "смузи" и "дома"***  
 
-You can use the [editor on GitHub](https://github.com/dee-me-tree-or-love/SLOG/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Welcome to the house of the tiny SLOG application.  
+The SLOG ('слог') is the russian for syllable. 
+<!--You can use the [editor on GitHub](https://github.com/dee-me-tree-or-love/SLOG/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+-->
+### Notes in the cloud
 
-### Markdown
+Take notes of all the coolest ideas and weirdest quotes you can encounter in the wild  
+Keep all your documents saved and always ready and never lose you thoughts :v:  
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+#### Technical detail 
 
-```markdown
+The data is saved using Firebase. 
+*Thanks StackOverflow for answering so many of my questions :D *
+<!--```markdown
 Syntax highlighted code block
 
 # Header 1
@@ -34,4 +43,9 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 
 ### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out. -->
+### Contact  
+
+If you ever have any problems using slog, or have some cool ideas, please feel free to open an [issue](https://github.com/dee-me-tree-or-love/SLOG/issues) in this repository or send me an [email](dmitrii-orlov@hotmail.com)  
+
+### Peace :)
