@@ -12,8 +12,7 @@ Keep all your documents saved and always ready and never lose you thoughts :v:
 
 #### Technical detail 
 
-The data is saved using Firebase.   
-*Thanks StackOverflow for answering so many of my questions :D *  
+The data is saved using Firebase.     
 
 ### Contact  
 
